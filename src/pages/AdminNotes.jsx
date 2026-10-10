@@ -41,6 +41,41 @@ function AdminNotes() {
     fetchNotes();
   }, []);
 
+  const handleDelete = async (noteId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this note?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("adminToken");
+
+      const response = await fetch(`${API_URL}/api/notes/${noteId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete note");
+      }
+
+      setNotes((currentNotes) =>
+        currentNotes.filter((note) => note._id !== noteId),
+      );
+    } catch (error) {
+      console.error(error);
+
+      alert(error.message || "Unable to delete note.");
+    }
+  };
+
   return (
     <section className="min-h-screen bg-gray-50 pt-32 pb-20">
       <div className="max-w-7xl mx-auto px-6">
@@ -175,6 +210,20 @@ function AdminNotes() {
                     >
                       View PDF →
                     </a>
+
+                    <Link
+                      to={`/admin/notes/edit/${note._id}`}
+                      className="inline-flex items-center justify-center bg-yellow-500 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-yellow-600 transition"
+                    >
+                      Edit
+                    </Link>
+
+                    <button
+                      onClick={() => handleDelete(note._id)}
+                      className="inline-flex items-center justify-center bg-red-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-red-700 transition"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </motion.div>

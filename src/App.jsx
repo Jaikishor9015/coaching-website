@@ -21,6 +21,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminNotes from "./pages/AdminNotes";
 import AdminTestPapers from "./pages/AdminTestPapers";
 import AdminEditTestPaper from "./pages/AdminEditTestPaper";
+import AdminEditNote from "./pages/AdminEditNote";
 
 function Home() {
   return (
@@ -102,6 +103,14 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminEditTestPaper />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/notes/edit/:id"
+          element={
+            <ProtectedAdminRoute>
+              <AdminEditNote />
             </ProtectedAdminRoute>
           }
         />
