@@ -21,11 +21,30 @@ function SubjectNotes() {
         setLoading(true);
         setError("");
 
+        const token = localStorage.getItem("studentToken");
+
+        if (!token) {
+          window.location.href = "/student/login";
+          return;
+        }
+
         const response = await fetch(
           `${API_URL}/api/notes/${className}/${subject}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
 
         if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("studentToken");
+            localStorage.removeItem("studentData");
+            window.location.href = "/student/login";
+            return;
+          }
+
           throw new Error("Failed to fetch notes");
         }
 

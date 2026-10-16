@@ -1,10 +1,23 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    navigate("/admin/login", { replace: true });
+  };
   return (
     <section className="min-h-screen bg-gray-50 pt-32 pb-20">
       <div className="max-w-6xl mx-auto px-6">
+        <button
+          onClick={handleLogout}
+          className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+        >
+          Logout
+        </button>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 25 }}
@@ -107,6 +120,35 @@ function AdminDashboard() {
               Manage Test Papers →
             </Link>
           </motion.div>
+
+          {/* Manage Students */}
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            whileHover={{ y: -5 }}
+            className="bg-white border border-gray-200 rounded-2xl p-7 hover:border-blue-300 hover:shadow-lg transition"
+          >
+            <div className="w-14 h-14 rounded-xl bg-indigo-100 flex items-center justify-center text-2xl">
+              👨‍🎓
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-6">
+              Manage Students
+            </h2>
+
+            <p className="text-gray-500 mt-3 leading-relaxed">
+              Create student accounts, assign classes, and manage access.
+            </p>
+
+            <Link
+              to="/admin/students"
+              className="inline-flex items-center mt-6 bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition"
+            >
+              Manage Students →
+            </Link>
+          </motion.div>
+
           {/* Website */}
           <motion.div
             initial={{ opacity: 0, y: 25 }}

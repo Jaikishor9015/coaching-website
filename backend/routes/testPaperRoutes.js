@@ -1,6 +1,7 @@
 const express = require("express");
 const TestPaper = require("../models/TestPaper");
 const protectAdmin = require("../middleware/authMiddleware");
+const protectStudent = require("../middleware/authStudent");
 
 const router = express.Router();
 
@@ -179,61 +180,54 @@ router.put("/:id", protectAdmin, async (req, res) => {
   }
 });
 
-router.get(
-  "/:className/:subject",
+router.get("/:className/:subject", protectStudent, async (req, res) => {
+  try {
+    const { className, subject } = req.params;
 
-  async (req, res) => {
-    try {
-      const { className, subject } = req.params;
-
-      const testPapers = await TestPaper.aggregate([
-        {
-          $match: {
-            className,
-            subject,
-          },
-        },
-
-        {
-          $addFields: {
-            typeOrder: {
-              $cond: [
-                {
-                  $eq: ["$type", "chapter"],
-                },
-                1,
-                2,
-              ],
-            },
-          },
-        },
-
-        {
-          $sort: {
-            typeOrder: 1,
-            chapterNumber: 1,
-            year: -1,
-          },
-        },
-
-        {
-          $project: {
-            typeOrder: 0,
-          },
-        },
-      ]);
-
-      res.json(testPapers);
-    } catch (error) {
-      console.error(error);
-
-      res.status(500).json({
-        message: "Failed to fetch test papers",
-
-        error: error.message,
+    // Students can access only their assigned class
+    if (req.student.className !== className) {
+      return res.status(403).json({
+        message: "You can access test papers for your assigned class only.",
       });
     }
-  },
-);
+
+    const testPapers = await TestPaper.aggregate([
+      {
+        $match: {
+          className,
+          subject,
+        },
+      },
+      {
+        $addFields: {
+          typeOrder: {
+            $cond: [{ $eq: ["$type", "chapter"] }, 1, 2],
+          },
+        },
+      },
+      {
+        $sort: {
+          typeOrder: 1,
+          chapterNumber: 1,
+          year: -1,
+        },
+      },
+      {
+        $project: {
+          typeOrder: 0,
+        },
+      },
+    ]);
+
+    res.json(testPapers);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to fetch test papers",
+      error: error.message,
+    });
+  }
+});
 
 module.exports = router;

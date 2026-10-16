@@ -21,14 +21,32 @@ function TestPaperList() {
         setLoading(true);
         setError("");
 
+        const token = localStorage.getItem("studentToken");
+
+        if (!token) {
+          window.location.href = "/student/login";
+          return;
+        }
+
         const response = await fetch(
           `${API_URL}/api/test-papers/${className}/${subject}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
         );
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("studentToken");
+          localStorage.removeItem("studentData");
+          window.location.href = "/student/login";
+          return;
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch test papers");
         }
-
         const data = await response.json();
 
         setPapers(data);

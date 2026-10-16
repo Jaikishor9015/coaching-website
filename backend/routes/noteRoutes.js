@@ -1,6 +1,7 @@
 const express = require("express");
 const Note = require("../models/Note");
 const protectAdmin = require("../middleware/authMiddleware");
+const protectStudent = require("../middleware/authStudent");
 
 const router = express.Router();
 
@@ -128,10 +129,17 @@ router.delete("/:id", protectAdmin, async (req, res) => {
   }
 });
 
-// Get notes by class and subject
-router.get("/:className/:subject", async (req, res) => {
+// Get notes by class and subject — students only
+router.get("/:className/:subject", protectStudent, async (req, res) => {
   try {
     const { className, subject } = req.params;
+
+    // Students can access only their assigned class
+    if (req.student.className !== className) {
+      return res.status(403).json({
+        message: "You can access notes for your assigned class only.",
+      });
+    }
 
     const notes = await Note.find({
       className,

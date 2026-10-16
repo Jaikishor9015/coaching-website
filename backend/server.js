@@ -5,6 +5,7 @@ const noteRoutes = require("./routes/noteRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const authRoutes = require("./routes/authRoutes");
 const testPaperRoutes = require("./routes/testPaperRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 const cloudinary = require("./config/cloudinary");
 
 require("dotenv").config();
@@ -20,6 +21,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/test-papers", testPaperRoutes);
+app.use("/api/students", studentRoutes);
 
 // MongoDB connection
 mongoose

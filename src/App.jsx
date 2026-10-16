@@ -1,4 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+  useLocation,
+} from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
@@ -22,6 +29,8 @@ import AdminNotes from "./pages/AdminNotes";
 import AdminTestPapers from "./pages/AdminTestPapers";
 import AdminEditTestPaper from "./pages/AdminEditTestPaper";
 import AdminEditNote from "./pages/AdminEditNote";
+import AdminStudents from "./pages/AdminStudents";
+import StudentLogin from "./pages/StudentLogin";
 
 function Home() {
   return (
@@ -48,6 +57,46 @@ function ProtectedAdminRoute({ children }) {
 
   return children;
 }
+function ProtectedStudentRoute({ children }) {
+  const token = localStorage.getItem("studentToken");
+  const studentData = JSON.parse(localStorage.getItem("studentData") || "null");
+  const { className } = useParams();
+  const location = useLocation();
+
+  if (!token || !studentData?.className) {
+    return <Navigate to="/student/login" replace />;
+  }
+
+  // Keep students inside their assigned class
+  if (className && className !== studentData.className) {
+    return (
+      <Navigate
+        to={
+          location.pathname.startsWith("/test-papers")
+            ? `/test-papers/${studentData.className}`
+            : `/notes/${studentData.className}`
+        }
+        replace
+      />
+    );
+  }
+
+  // The general test-paper page should open the student's own class
+  if (location.pathname === "/test-papers") {
+    return <Navigate to={`/test-papers/${studentData.className}`} replace />;
+  }
+
+  return children;
+}
+
+function StudentLayout({ children }) {
+  return (
+    <>
+      <Navbar />
+      <div className="pt-20">{children}</div>
+    </>
+  );
+}
 
 function App() {
   return (
@@ -55,9 +104,24 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
 
-        <Route path="/notes/:className" element={<ClassNotes />} />
-        <Route path="/notes/:className/:subject" element={<SubjectNotes />} />
+        <Route
+          path="/notes/:className"
+          element={
+            <ProtectedStudentRoute>
+              <ClassNotes />
+            </ProtectedStudentRoute>
+          }
+        />
+        <Route
+          path="/notes/:className/:subject"
+          element={
+            <ProtectedStudentRoute>
+              <SubjectNotes />
+            </ProtectedStudentRoute>
+          }
+        />
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/student/login" element={<StudentLogin />} />
         <Route
           path="/admin/upload"
           element={
@@ -66,13 +130,31 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
-        <Route path="/test-papers" element={<TestPaperClasses />} />
+        <Route
+          path="/test-papers"
+          element={
+            <ProtectedStudentRoute>
+              <TestPaperClasses />
+            </ProtectedStudentRoute>
+          }
+        />
 
-        <Route path="/test-papers/:className" element={<TestPaperSubjects />} />
+        <Route
+          path="/test-papers/:className"
+          element={
+            <ProtectedStudentRoute>
+              <TestPaperSubjects />
+            </ProtectedStudentRoute>
+          }
+        />
 
         <Route
           path="/test-papers/:className/:subject"
-          element={<TestPaperList />}
+          element={
+            <ProtectedStudentRoute>
+              <TestPaperList />
+            </ProtectedStudentRoute>
+          }
         />
         <Route
           path="/admin/dashboard"
@@ -111,6 +193,14 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminEditNote />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/students"
+          element={
+            <ProtectedAdminRoute>
+              <AdminStudents />
             </ProtectedAdminRoute>
           }
         />
