@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const Student = require("../models/Student");
 
-const protectStudent = (req, res, next) => {
+const protectStudent = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -24,9 +25,19 @@ const protectStudent = (req, res, next) => {
       });
     }
 
+    // Recheck the current account in MongoDB.
+    const student = await Student.findById(decoded.studentId);
+
+    if (!student || !student.isActive) {
+      return res.status(401).json({
+        message: "Your account is inactive or no longer exists.",
+      });
+    }
+
+    // Always use the student's current assigned class.
     req.student = {
-      id: decoded.studentId,
-      className: decoded.className,
+      id: student._id.toString(),
+      className: student.className,
     };
 
     next();

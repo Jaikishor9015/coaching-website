@@ -95,6 +95,101 @@ router.get("/", protectAdmin, async (req, res) => {
   }
 });
 
+/* Update student details — admin only */
+router.put("/:id", protectAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, username, className, password, isActive } = req.body;
+
+    const allowedClasses = [
+      "class-6",
+      "class-7",
+      "class-8",
+      "class-9",
+      "class-10",
+      "class-11",
+      "class-12",
+    ];
+
+    const student = await Student.findById(id);
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found." });
+    }
+
+    if (name !== undefined) {
+      if (!name.trim()) {
+        return res.status(400).json({ message: "Name is required." });
+      }
+      student.name = name.trim();
+    }
+
+    if (username !== undefined) {
+      if (!username.trim()) {
+        return res.status(400).json({ message: "Username is required." });
+      }
+
+      const normalizedUsername = username.trim().toLowerCase();
+
+      const existing = await Student.findOne({
+        username: normalizedUsername,
+        _id: { $ne: student._id },
+      });
+
+      if (existing) {
+        return res.status(409).json({ message: "Username is already taken." });
+      }
+
+      student.username = normalizedUsername;
+    }
+
+    if (className !== undefined) {
+      if (!allowedClasses.includes(className)) {
+        return res.status(400).json({ message: "Invalid class." });
+      }
+      student.className = className;
+    }
+
+    if (password !== undefined && password !== "") {
+      if (password.length < 8) {
+        return res.status(400).json({
+          message: "Password must be at least 8 characters.",
+        });
+      }
+
+      student.password = await bcrypt.hash(password, 12);
+    }
+
+    if (isActive !== undefined) {
+      if (typeof isActive !== "boolean") {
+        return res.status(400).json({ message: "Invalid account status." });
+      }
+      student.isActive = isActive;
+    }
+
+    await student.save();
+
+    return res.json({
+      message: "Student updated successfully.",
+      student: {
+        id: student._id,
+        name: student.name,
+        username: student.username,
+        className: student.className,
+        isActive: student.isActive,
+      },
+    });
+  } catch (error) {
+    console.error("Update student error:", error);
+
+    if (error.code === 11000) {
+      return res.status(409).json({ message: "Username is already taken." });
+    }
+
+    return res.status(500).json({ message: "Unable to update student." });
+  }
+});
+
 // Student login
 router.post("/login", async (req, res) => {
   try {

@@ -9,7 +9,7 @@ const router = express.Router();
 // CREATE TEST PAPER
 // ==========================================
 
-router.post("/", async (req, res) => {
+router.post("/", protectAdmin, async (req, res) => {
   try {
     const {
       className,
