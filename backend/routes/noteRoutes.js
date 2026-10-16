@@ -6,7 +6,7 @@ const protectStudent = require("../middleware/authStudent");
 const router = express.Router();
 
 // Create a new note
-router.post("/", async (req, res) => {
+router.post("/", protectAdmin, async (req, res) => {
   try {
     const { className, subject, chapterNumber, title, description, pdfUrl } =
       req.body;

@@ -50,7 +50,7 @@ function StudentLogin() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <p className="text-blue-600 font-semibold uppercase tracking-wider text-sm">
-            EduCore
+            SankalpZone
           </p>
           <h1 className="text-3xl font-bold text-gray-900 mt-3">
             Student Login

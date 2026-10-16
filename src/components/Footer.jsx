@@ -9,7 +9,7 @@ function Footer() {
               href="#home"
               className="text-2xl font-bold text-white hover:text-blue-400 transition"
             >
-              EduCore
+              SankalpZone
             </a>
 
             <p className="mt-4 text-gray-400 leading-relaxed max-w-sm">
@@ -69,10 +69,10 @@ function Footer() {
               </a>
 
               <a
-                href="mailto:info@educore.com"
+                href="mailto:info@sankalpzone.com"
                 className="block hover:text-white transition"
               >
-                ✉️ info@educore.com
+                ✉️ info@sankalpzone.com
               </a>
 
               <p>📍 New Delhi, India</p>
@@ -82,7 +82,7 @@ function Footer() {
 
         {/* Bottom */}
         <div className="border-t border-gray-800 mt-12 pt-6 flex flex-col md:flex-row justify-between gap-3 text-sm text-gray-500">
-          <p>© 2026 EduCore. All rights reserved.</p>
+          <p>© 2026 SankalpZone. All rights reserved.</p>
 
           <p>Built with React & Tailwind CSS</p>
         </div>
